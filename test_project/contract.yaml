@@ -1,0 +1,11 @@
+components:
+  schemas:
+    UserSchema:
+      type: object
+      properties:
+        id:
+          type: integer
+        first_name: # <- ERROR: Still the old name
+          type: string
+        email: # <- ERROR: Still exists
+          type: string
