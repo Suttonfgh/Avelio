@@ -21,6 +21,7 @@ Version: MVP 1.0
 
 import sys
 import os
+import argparse
 from typing import List, Dict
 
 # Ensure we can import from the same directory when running as a script
@@ -42,6 +43,11 @@ def main() -> None:
     2. Contract Loading: Index API contract schemas
     3. Validation: Cross-reference changes against contract
     
+    Command-line Arguments:
+        --before: Path to the original model file (before changes)
+        --after: Path to the modified model file (after changes)
+        --contract: Path to the API contract YAML file
+    
     Exit Codes:
         0: Success - No violations found
         1: Failure - Violations detected or execution error
@@ -53,12 +59,47 @@ def main() -> None:
     print("Mission: Preventing API Contract Violations in AI-Assisted Development")
     print("=" * 70)
     
-    # Hard-coded paths relative to this file for robustness
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(
+        description='Avelio Architectural Guard - Validate API contract consistency',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Using default test files
+  python src/avelio_core.py
+  
+  # Using custom files
+  python src/avelio_core.py --before backend/old_models.py --after backend/new_models.py --contract openapi.yaml
+        """
+    )
     
-    FILE_BEFORE = os.path.join(base_dir, 'test_project', 'model_before.py')
-    FILE_AFTER = os.path.join(base_dir, 'test_project', 'model_after.py')
-    CONTRACT_FILE = os.path.join(base_dir, 'test_project', 'contract.yaml')
+    # Default paths (for backward compatibility with test project)
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    default_before = os.path.join(base_dir, 'test_project', 'model_before.py')
+    default_after = os.path.join(base_dir, 'test_project', 'model_after.py')
+    default_contract = os.path.join(base_dir, 'test_project', 'contract.yaml')
+    
+    parser.add_argument(
+        '--before',
+        default=default_before,
+        help='Path to the original model file (before changes). Default: test_project/model_before.py'
+    )
+    parser.add_argument(
+        '--after',
+        default=default_after,
+        help='Path to the modified model file (after changes). Default: test_project/model_after.py'
+    )
+    parser.add_argument(
+        '--contract',
+        default=default_contract,
+        help='Path to the API contract YAML file. Default: test_project/contract.yaml'
+    )
+    
+    args = parser.parse_args()
+    
+    FILE_BEFORE = args.before
+    FILE_AFTER = args.after
+    CONTRACT_FILE = args.contract
     
     print(f"\n📂 Configuration:")
     print(f"   Base Directory: {base_dir}")
@@ -135,3 +176,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
